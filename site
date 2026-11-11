@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lazaro Space Battle</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #080b1a;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    overflow: hidden;
+}
+
+header {
+    padding: 15px;
+    background: #121a35;
+    border-bottom: 2px solid #00e5ff;
+}
+
+h1 {
+    color: #00e5ff;
+    letter-spacing: 3px;
+    font-size: 30px;
+}
+
+header p {
+    margin-top: 5px;
+    color: #aaa;
+}
+
+#informacoes {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    padding: 15px;
+    font-size: 20px;
+}
+
+#jogo {
+    width: 90%;
+    max-width: 700px;
+    height: 480px;
+    margin: auto;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(#080b24, #101c3d);
+    border: 3px solid #00e5ff;
+    border-radius: 15px;
+}
+
+.estrela {
+    position: absolute;
+    background: white;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+}
+
+#nave {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 38px;
+}
+
+.inimigo {
+    position: absolute;
+    font-size: 30px;
+}
+
+.tiro {
+    position: absolute;
+    width: 5px;
+    height: 18px;
+    background: #00ffcc;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #00ffcc;
+}
+
+#menu {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 10;
+}
+
+#menu h2 {
+    color: #00e5ff;
+    font-size: 35px;
+}
+
+#menu p {
+    color: #ddd;
+    max-width: 80%;
+    line-height: 1.5;
+}
+
+button {
+    background: #00e5ff;
+    color: #07101f;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: white;
+    transform: scale(1.05);
+}
+
+#controles {
+    margin-top: 15px;
+    color: #aaa;
+}
+
+#controles span {
+    color: #00e5ff;
+}
+
+#mensagem {
+    margin-top: 10px;
+    color: #00e5ff;
+    font-size: 20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚀 LAZARO SPACE BATTLE</h1>
+    <p>Defenda a galáxia!</p>
+</header>
+
+<div id="informacoes">
+    <div>⭐ Pontos: <span id="pontos">0</span></div>
+    <div>❤️ Vidas: <span id="vidas">3</span></div>
+    <div>🌎 Fase: <span id="fase">1</span></div>
+</div>
+
+<div id="jogo">
+
+    <div id="estrelas"></div>
+
+    <div id="nave">🚀</div>
+
+    <div id="menu">
+        <h2>SPACE BATTLE</h2>
+        <p>
+            Você é o último piloto da galáxia.
+            Destrua os inimigos e sobreviva!
+        </p>
+        <button onclick="iniciarJogo()">
+            INICIAR JOGO
+        </button>
+    </div>
+
+</div>
+
+<div id="controles">
+    <p>
+        <span>← →</span> Mover nave |
+        <span>ESPAÇO</span> Atirar
+    </p>
+</div>
+
+<div id="mensagem">
+    Prepare-se para a batalha!
+</div>
+
+<script>
+
+// ELEMENTOS DO JOGO
+
+const jogo = document.getElementById("jogo");
+const nave = document.getElementById("nave");
+const menu = document.getElementById("menu");
+
+const pontosTexto = document.getElementById("pontos");
+const vidasTexto = document.getElementById("vidas");
+const faseTexto = document.getElementById("fase");
+const mensagem = document.getElementById("mensagem");
+
+// VARIÁVEIS
+
+let pontos = 0;
+let vidas = 3;
+let fase = 1;
+
+let naveX = 0;
+let velocidade = 7;
+
+let tiros = [];
+let inimigos = [];
+
+let teclas = {};
+let jogando = false;
+
+let loop;
+let tempoInimigo;
+
+// CRIAR ESTRELAS
+
+function criarEstrelas() {
+
+    const estrelas = document.getElementById("estrelas");
+
+    for (let i = 0; i < 60; i++) {
+
+        let estrela = document.createElement("div");
+
+        estrela.className = "estrela";
+
+        estrela.style.left =
+            Math.random() * 100 + "%";
+
+        estrela.style.top =
+            Math.random() * 100 + "%";
+
+        estrelas.appendChild(estrela);
+    }
+}
+
+criarEstrelas();
+
+// INICIAR JOGO
+
+function iniciarJogo() {
+
+    pontos = 0;
+    vidas = 3;
+    fase = 1;
+
+    tiros = [];
+    inimigos = [];
+
+    naveX = jogo.clientWidth / 2 - 22;
+
+    nave.style.left = naveX + "px";
+
+    atualizarPainel();
+
+    document.querySelectorAll(".tiro").forEach(
+        elemento => elemento.remove()
+    );
+
+    document.querySelectorAll(".inimigo").forEach(
+        elemento => elemento.remove()
+    );
+
+    menu.style.display = "none";
+
+    jogando = true;
+
+    mensagem.innerText = "Boa sorte, piloto!";
+
+    clearInterval(tempoInimigo);
+
+    tempoInimigo = setInterval(
+        criarInimigo,
+        1200
+    );
+
+    cancelarLoop();
+
+    loop = setInterval(atualizarJogo, 20);
+}
+
+// CANCELAR LOOP
+
+function cancelarLoop() {
+
+    if (loop) {
+        clearInterval(loop);
+    }
+}
+
+// MOVIMENTAR NAVE
+
+document.addEventListener("keydown", function(evento) {
+
+    teclas[evento.key] = true;
+
+    if (evento.code === "Space") {
+        evento.preventDefault();
+        atirar();
+    }
+
+});
+
+document.addEventListener("keyup", function(evento) {
+
+    teclas[evento.key] = false;
+
+});
+
+// ATIRAR
+
+function atirar() {
+
+    if (!jogando) return;
+
+    let tiro = document.createElement("div");
+
+    tiro.className = "tiro";
+
+    tiro.style.left =
+        naveX + 20 + "px";
+
+    tiro.style.top =
+        (jogo.clientHeight - 65) + "px";
+
+    jogo.appendChild(tiro);
+
+    tiros.push({
+        elemento: tiro,
+        x: naveX + 20,
+        y: jogo.clientHeight - 65
+    });
+
+}
+
+// CRIAR INIMIGOS
+
+function criarInimigo() {
+
+    if (!jogando) return;
+
+    let inimigo = document.createElement("div");
+
+    inimigo.className = "inimigo";
+
+    inimigo.innerText = "👾";
+
+    let x = Math.random() *
+        (jogo.clientWidth - 35);
+
+    inimigo.style.left = x + "px";
+
+    inimigo.style.top = "-40px";
+
+    jogo.appendChild(inimigo);
+
+    inimigos.push({
+        elemento: inimigo,
+        x: x,
+        y: -40
+    });
+
+}
+
+// ATUALIZAR JOGO
+
+function atualizarJogo() {
+
+    if (!jogando) return;
+
+    // MOVIMENTO DA NAVE
+
+    if (teclas["ArrowLeft"] || teclas["a"]) {
+        naveX -= velocidade;
+    }
+
+    if (teclas["ArrowRight"] || teclas["d"]) {
+        naveX += velocidade;
+    }
+
+    // LIMITES DA TELA
+
+    naveX = Math.max(
+        0,
+        Math.min(jogo.clientWidth - 45, naveX)
+    );
+
+    nave.style.left = naveX + "px";
+
+    // MOVIMENTAR TIROS
+
+    for (let i = tiros.length - 1; i >= 0; i--) {
+
+        let tiro = tiros[i];
+
+        tiro.y -= 10;
+
+        tiro.elemento.style.top =
+            tiro.y + "px";
+
+        if (tiro.y < 0) {
+
+            tiro.elemento.remove();
+
+            tiros.splice(i, 1);
+
+        }
+
+    }
+
+    // MOVIMENTAR INIMIGOS
+
+    for (let i = inimigos.length - 1; i >= 0; i--) {
+
+        let inimigo = inimigos[i];
+
+        inimigo.y += 2 + fase;
+
+        inimigo.elemento.style.top =
+            inimigo.y + "px";
+
+        // INIMIGO CHEGOU AO FINAL
+
+        if (inimigo.y > jogo.clientHeight - 45) {
+
+            inimigo.elemento.remove();
+
+            inimigos.splice(i, 1);
+
+            perderVida();
+
+            continue;
+        }
+
+        // COLISÃO ENTRE TIRO E INIMIGO
+
+        for (let j = tiros.length - 1; j >= 0; j--) {
+
+            let tiro = tiros[j];
+
+            let distanciaX =
+                Math.abs(tiro.x - inimigo.x);
+
+            let distanciaY =
+                Math.abs(tiro.y - inimigo.y);
+
+            if (distanciaX < 35 && distanciaY < 35) {
+
+                tiro.elemento.remove();
+                inimigo.elemento.remove();
+
+                tiros.splice(j, 1);
+                inimigos.splice(i, 1);
+
+                ganharPontos();
+
+                break;
+            }
+
+        }
+
+    }
+
+}
+
+// GANHAR PONTOS
+
+function ganharPontos() {
+
+    pontos += 10;
+
+    atualizarPainel();
+
+    if (pontos >= fase * 100) {
+
+        fase++;
+
+        atualizarPainel();
+
+        mensagem.innerText =
+            "🚀 VOCÊ AVANÇOU DE FASE!";
+
+    }
+
+}
+
+// PERDER VIDA
+
+function perderVida() {
+
+    vidas--;
+
+    atualizarPainel();
+
+    if (vidas <= 0) {
+
+        fimDeJogo();
+
+    }
+
+}
+
+// ATUALIZAR PAINEL
+
+function atualizarPainel() {
+
+    pontosTexto.innerText = pontos;
+
+    vidasTexto.innerText = vidas;
+
+    faseTexto.innerText = fase;
+
+}
+
+// FIM DE JOGO
+
+function fimDeJogo() {
+
+    jogando = false;
+
+    clearInterval(loop);
+
+    clearInterval(tempoInimigo);
+
+    mensagem.innerText =
+        "Fim de jogo!";
+
+    menu.style.display = "flex";
+
+    menu.innerHTML = `
+        <h2>GAME OVER</h2>
+
+        <p>
+            Sua pontuação foi:
+            <strong>${pontos}</strong>
+        </p>
+
+        <p>
+            Você chegou à fase ${fase}.
+        </p>
+
+        <button onclick="iniciarJogo()">
+            JOGAR NOVAMENTE
+        </button>
+    `;
+
+}
+
+// MOVIMENTO COM MOUSE
+
+jogo.addEventListener("mousemove", function(evento) {
+
+    if (!jogando) return;
+
+    let retangulo = jogo.getBoundingClientRect();
+
+    naveX =
+        evento.clientX -
+        retangulo.left - 22;
+
+});
+
+// MOVIMENTO COM TOQUE
+
+jogo.addEventListener("touchmove", function(evento) {
+
+    if (!jogando) return;
+
+    evento.preventDefault();
+
+    let retangulo = jogo.getBoundingClientRect();
+
+    naveX =
+        evento.touches[0].clientX -
+        retangulo.left - 22;
+
+}, { passive: false });
+
+// CONTROLES DE TECLADO
+
+document.addEventListener("keydown", function(evento) {
+
+    if (evento.key === " ") {
+        evento.preventDefault();
+    }
+
+});
+
+// FIM DO CÓDIGO
+
+</script>
+
+</body>
+</html>
