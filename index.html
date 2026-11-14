@@ -3,266 +3,359 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SUPER FOOTBALL</title>
+<title>MINI HAXBALL PRO</title>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;background:#101820;color:white;
+ margin:0;background:#10151d;color:white;
  font-family:Arial;text-align:center;
 }
-h1{color:#ffe600;text-shadow:0 0 12px orange}
+h1{
+ color:#42d9ff;
+ text-shadow:0 0 15px #00aaff;
+ margin:12px;
+}
 #score{
- font-size:27px;font-weight:bold;margin:10px;
+ font-size:30px;font-weight:bold;
+ margin:12px;
 }
 #field{
- width:min(900px,96vw);
- height:min(570px,65vh);
- min-height:400px;
- margin:auto;position:relative;
- overflow:hidden;
- background:#168d43;
+ width:min(1000px,97vw);
+ height:min(600px,70vh);
+ min-height:380px;
+ position:relative;margin:auto;
+ background:#288b45;
  border:5px solid white;
+ overflow:hidden;
+ border-radius:5px;
 }
-.stripe{
- position:absolute;top:0;bottom:0;width:12.5%;
- background:#ffffff0b;
+.grass{
+ position:absolute;inset:0;
+ background:repeating-linear-gradient(
+  90deg,#00000008 0px,#00000008 80px,
+  transparent 80px,transparent 160px);
 }
-#middle{
+.line{
  position:absolute;left:50%;height:100%;
  border-left:3px solid white;
 }
-#circle{
+.circle{
  position:absolute;left:50%;top:50%;
- width:120px;height:120px;
- border:3px solid white;border-radius:50%;
+ width:130px;height:130px;
+ border:3px solid white;
+ border-radius:50%;
  transform:translate(-50%,-50%);
 }
+.box{
+ position:absolute;top:50%;
+ width:100px;height:220px;
+ border:3px solid white;
+ transform:translateY(-50%);
+}
+.left{left:-3px}
+.right{right:-3px}
 .goal{
- position:absolute;top:38%;height:24%;
- width:35px;border:4px solid white;
+ position:absolute;top:40%;height:20%;
+ width:15px;background:white;
 }
-#goalL{left:0;border-left:0}
-#goalR{right:0;border-right:0}
-.player,.enemy,.keeper{
- position:absolute;width:35px;height:35px;
- border-radius:50%;display:flex;
- align-items:center;justify-content:center;
- font-size:18px;z-index:3;
+.goal.left{left:0}
+.goal.right{right:0}
+.disc{
+ position:absolute;
+ width:36px;height:36px;
+ border-radius:50%;
+ border:3px solid white;
+ z-index:3;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:11px;
+ font-weight:bold;
+ box-shadow:0 2px 5px #0007;
 }
-.player{background:#087bff;border:3px solid white}
-.enemy{background:#ed2727;border:3px solid white}
-.keeper{background:#ffdf00;border:3px solid white}
+.blue{background:#087bff}
+.red{background:#ed3030}
+.yellow{background:#ffce00;color:#111}
 #ball{
  position:absolute;width:20px;height:20px;
- background:white;border-radius:50%;
- border:2px solid black;z-index:4;
+ background:white;border:2px solid #333;
+ border-radius:50%;z-index:5;
+ box-shadow:0 0 5px white;
 }
 #controls{
- margin:15px auto;display:flex;
- justify-content:center;gap:15px;
+ margin:15px;
+ display:flex;justify-content:center;
+ gap:25px;flex-wrap:wrap;
 }
 button{
- background:#ffdf00;border:0;padding:13px 20px;
- border-radius:9px;font-weight:bold;font-size:17px;
+ padding:13px 22px;
+ background:#16c8ee;
+ border:0;border-radius:8px;
+ font-size:17px;font-weight:bold;
  cursor:pointer;
 }
-#directions{
- display:grid;grid-template-columns:repeat(3,55px);
- gap:5px;justify-content:center;
-}
-#directions button{padding:13px 5px}
-#message{margin:10px;color:#ddd}
+#status{color:#ccc;margin:12px}
 </style>
 </head>
 <body>
 
-<h1>⚽ SUPER FOOTBALL</h1>
-<div id="score">AZUL 0 × 0 VERMELHO</div>
+<h1>⚽ MINI HAXBALL PRO</h1>
+<div id="score">🔵 0 × 0 🔴</div>
 
 <div id="field">
- <div class="stripe" style="left:0"></div>
- <div class="stripe" style="left:25%"></div>
- <div class="stripe" style="left:50%"></div>
- <div class="stripe" style="left:75%"></div>
- <div id="middle"></div>
- <div id="circle"></div>
- <div class="goal" id="goalL"></div>
- <div class="goal" id="goalR"></div>
+ <div class="grass"></div>
+ <div class="line"></div>
+ <div class="circle"></div>
+ <div class="box left"></div>
+ <div class="box right"></div>
+ <div class="goal left"></div>
+ <div class="goal right"></div>
  <div id="ball"></div>
 </div>
 
 <div id="controls">
- <div id="directions">
-  <span></span><button onclick="move(0,-1)">⬆️</button><span></span>
-  <button onclick="move(-1,0)">⬅️</button>
-  <button onclick="move(0,1)">⬇️</button>
-  <button onclick="move(1,0)">➡️</button>
- </div>
- <div>
-  <button onclick="kick()">⚽ CHUTAR</button>
-  <button onclick="pass()">PASSE</button>
- </div>
+ <button onclick="kick()">⚽ CHUTAR</button>
+ <button onclick="reset()">🔄 REINICIAR</button>
 </div>
 
-<div id="message">Use WASD ou as setas para jogar. Espaço para chutar.</div>
-<button onclick="restart()">NOVO JOGO</button>
+<div id="status">
+ WASD ou setas: movimentar | ESPAÇO: chute
+</div>
 
 <script>
 const field=document.getElementById("field");
 const ball=document.getElementById("ball");
-const W=900,H=570;
 
-let azul=0,vermelho=0;
-let px=180,py=285;
-let bx=450,by=285;
-let vx=0,vy=0;
-let direction=1;
-let time=90;
-let running=true;
+let W=field.clientWidth;
+let H=field.clientHeight;
 
-const player=document.createElement("div");
-player.className="player";
-player.textContent="10";
-field.appendChild(player);
+let blueScore=0;
+let redScore=0;
+let keys={};
 
-let enemies=[];
-for(let i=0;i<4;i++){
- let e=document.createElement("div");
- e.className="enemy";
- e.textContent=""+(i+7);
- field.appendChild(e);
- enemies.push({
-  el:e,x:550+i*55,y:120+i*100
- });
+let ballObj={
+ x:W/2,y:H/2,vx:0,vy:0,r:10
+};
+
+function createPlayer(x,y,color,number){
+ let el=document.createElement("div");
+ el.className="disc "+color;
+ el.textContent=number;
+ field.appendChild(el);
+ return {
+  x,y,vx:0,vy:0,r:18,
+  el,color
+ };
 }
 
-const keeper=document.createElement("div");
-keeper.className="keeper";
-keeper.textContent="GK";
-field.appendChild(keeper);
+let me=createPlayer(W*.30,H*.5,"blue","10");
+
+let teammates=[
+ createPlayer(W*.23,H*.30,"blue","7"),
+ createPlayer(W*.23,H*.70,"blue","8"),
+ createPlayer(W*.12,H*.50,"yellow","GK")
+];
+
+let enemies=[
+ createPlayer(W*.70,H*.30,"red","9"),
+ createPlayer(W*.70,H*.70,"red","11"),
+ createPlayer(W*.80,H*.50,"red","10"),
+ createPlayer(W*.88,H*.50,"yellow","GK")
+];
+
+function clamp(p){
+ p.x=Math.max(p.r,Math.min(W-p.r,p.x));
+ p.y=Math.max(p.r,Math.min(H-p.r,p.y));
+}
+
+function renderPlayer(p){
+ p.el.style.left=(p.x-p.r)+"px";
+ p.el.style.top=(p.y-p.r)+"px";
+}
 
 function render(){
- player.style.left=px-17+"px";
- player.style.top=py-17+"px";
- ball.style.left=bx-10+"px";
- ball.style.top=by-10+"px";
- keeper.style.left="850px";
- keeper.style.top=285-17+"px";
- enemies.forEach(e=>{
-  e.el.style.left=e.x-17+"px";
-  e.el.style.top=e.y-17+"px";
- });
-}
+ renderPlayer(me);
+ teammates.forEach(renderPlayer);
+ enemies.forEach(renderPlayer);
 
-function move(dx,dy){
- if(!running)return;
- px=Math.max(30,Math.min(870,px+dx*22));
- py=Math.max(30,Math.min(540,py+dy*22));
- direction=dx||direction;
- render();
-}
-
-function kick(){
- if(!running)return;
- let dx=bx-px,dy=by-py;
- let d=Math.hypot(dx,dy);
- if(d<75){
-  vx=direction*13;
-  vy=dy*.12;
- }
-}
-
-function pass(){
- if(!running)return;
- let dx=bx-px,dy=by-py;
- if(Math.hypot(dx,dy)<85){
-  vx=direction*8;
-  vy=dy*.15;
- }
+ ball.style.left=(ballObj.x-ballObj.r)+"px";
+ ball.style.top=(ballObj.y-ballObj.r)+"px";
 }
 
 document.addEventListener("keydown",e=>{
- if(["ArrowUp","w"].includes(e.key))move(0,-1);
- if(["ArrowDown","s"].includes(e.key))move(0,1);
- if(["ArrowLeft","a"].includes(e.key))move(-1,0);
- if(["ArrowRight","d"].includes(e.key))move(1,0);
- if(e.code==="Space")kick();
+ keys[e.key.toLowerCase()]=true;
+ if(e.code==="Space"){
+  e.preventDefault();
+  kick();
+ }
 });
 
+document.addEventListener("keyup",e=>{
+ keys[e.key.toLowerCase()]=false;
+});
+
+function kick(){
+ let dx=ballObj.x-me.x;
+ let dy=ballObj.y-me.y;
+ let d=Math.hypot(dx,dy);
+
+ if(d<65&&d>0){
+  ballObj.vx+=dx/d*8;
+  ballObj.vy+=dy/d*8;
+ }
+}
+
+function collide(p){
+ let dx=ballObj.x-p.x;
+ let dy=ballObj.y-p.y;
+ let d=Math.hypot(dx,dy);
+ let min=p.r+ballObj.r;
+
+ if(d<min&&d>0){
+  let nx=dx/d;
+  let ny=dy/d;
+  let push=min-d;
+
+  ballObj.x+=nx*push;
+  ballObj.y+=ny*push;
+
+  ballObj.vx+=nx*1.7+p.vx*.45;
+  ballObj.vy+=ny*1.7+p.vy*.45;
+ }
+}
+
+function movePlayer(p,dx,dy){
+ p.vx+=dx;
+ p.vy+=dy;
+
+ let speed=Math.hypot(p.vx,p.vy);
+ let max=5;
+
+ if(speed>max){
+  p.vx=p.vx/speed*max;
+  p.vy=p.vy/speed*max;
+ }
+
+ p.x+=p.vx;
+ p.y+=p.vy;
+
+ p.vx*=.87;
+ p.vy*=.87;
+
+ clamp(p);
+}
+
+function ai(p,targetX,targetY,amount){
+ let dx=targetX-p.x;
+ let dy=targetY-p.y;
+ let d=Math.hypot(dx,dy)||1;
+
+ movePlayer(p,dx/d*amount,dy/d*amount);
+}
+
 function update(){
- if(!running)return;
+ let dx=0,dy=0;
 
- bx+=vx;by+=vy;
- vx*=.985;vy*=.985;
+ if(keys.w||keys.arrowup)dy--;
+ if(keys.s||keys.arrowdown)dy++;
+ if(keys.a||keys.arrowleft)dx--;
+ if(keys.d||keys.arrowright)dx++;
 
- enemies.forEach(e=>{
-  let dx=bx-e.x,dy=by-e.y;
-  let d=Math.hypot(dx,dy);
-  if(d>1){
-   e.x+=dx/d*1.5;
-   e.y+=dy/d*1.5;
-  }
-  if(d<24){
-   vx=-3;vy=(by-e.y)*.3;
-  }
+ if(dx&&dy){
+  dx*=.707;dy*=.707;
+ }
+
+ movePlayer(me,dx*.65,dy*.65);
+
+ // Companheiros acompanham o ataque
+ teammates[0]&&ai(teammates[0],W*.38,H*.3,.10);
+ teammates[1]&&ai(teammates[1],W*.38,H*.7,.10);
+
+ // Goleiro azul acompanha a bola
+ ai(teammates[2],W*.10,ballObj.y,.12);
+
+ // Adversários perseguem a bola
+ ai(enemies[0],ballObj.x,ballObj.y,.30);
+ ai(enemies[1],ballObj.x,ballObj.y,.30);
+ ai(enemies[2],ballObj.x,ballObj.y,.20);
+
+ // Goleiro vermelho
+ ai(enemies[3],W*.90,ballObj.y,.14);
+
+ // Colisões dos jogadores
+ [me,...teammates,...enemies].forEach(p=>{
+  collide(p);
  });
 
- if(bx<30||bx>870){
-  if(by>210&&by<360){
-   if(bx>870)azul++;
-   else vermelho++;
+ // Movimento da bola
+ ballObj.x+=ballObj.vx;
+ ballObj.y+=ballObj.vy;
+
+ ballObj.vx*=.992;
+ ballObj.vy*=.992;
+
+ // Limites laterais
+ if(ballObj.y<ballObj.r){
+  ballObj.y=ballObj.r;
+  ballObj.vy=Math.abs(ballObj.vy)*.8;
+ }
+
+ if(ballObj.y>H-ballObj.r){
+  ballObj.y=H-ballObj.r;
+  ballObj.vy=-Math.abs(ballObj.vy)*.8;
+ }
+
+ let goal=ballObj.y>H*.40&&ballObj.y<H*.60;
+
+ if(ballObj.x<ballObj.r){
+  if(goal){
+   redScore++;
+   updateScore();
    resetBall();
   }else{
-   vx=-vx;
+   ballObj.x=ballObj.r;
+   ballObj.vx=Math.abs(ballObj.vx)*.8;
   }
  }
 
- if(by<15||by>555)vy=-vy;
-
- if(Math.hypot(bx-px,by-py)<29){
-  if(Math.abs(vx)+Math.abs(vy)<2){
-   bx+=direction*3;
+ if(ballObj.x>W-ballObj.r){
+  if(goal){
+   blueScore++;
+   updateScore();
+   resetBall();
+  }else{
+   ballObj.x=W-ballObj.r;
+   ballObj.vx=-Math.abs(ballObj.vx)*.8;
   }
- }
-
- if(bx>825&&by>230&&by<340){
-  vx=-Math.abs(vx)-3;
  }
 
  render();
+ requestAnimationFrame(update);
+}
+
+function updateScore(){
  document.getElementById("score").textContent=
- "AZUL "+azul+" × "+vermelho+" VERMELHO";
+ "🔵 "+blueScore+" × "+redScore+" 🔴";
 }
 
 function resetBall(){
- bx=450;by=285;vx=0;vy=0;
- px=180;py=285;
- enemies.forEach((e,i)=>{
-  e.x=550+i*55;e.y=120+i*100;
- });
+ ballObj.x=W/2;
+ ballObj.y=H/2;
+ ballObj.vx=0;
+ ballObj.vy=0;
+ me.x=W*.30;
+ me.y=H/2;
 }
 
-function restart(){
- azul=0;vermelho=0;time=90;
- running=true;resetBall();render();
+function reset(){
+ blueScore=0;
+ redScore=0;
+ updateScore();
+ resetBall();
 }
-
-setInterval(update,16);
-
-setInterval(()=>{
- if(!running)return;
- time--;
- document.getElementById("message").textContent=
- "Tempo restante: "+time+" segundos";
- if(time<=0){
-  running=false;
-  document.getElementById("message").textContent=
-   azul>vermelho?"🏆 AZUL VENCEU!":
-   vermelho>azul?"🏆 VERMELHO VENCEU!":"🤝 EMPATE!";
- }
-},1000);
 
 render();
+update();
 </script>
 </body>
 </html>
