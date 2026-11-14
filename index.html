@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lazaro Space Battle</title>
+<title>A Cidade Sombria</title>
 
 <style>
 * {
@@ -13,134 +13,122 @@
 }
 
 body {
-    background: #080b1a;
+    background: #050509;
     color: white;
     font-family: Arial, sans-serif;
-    text-align: center;
     overflow: hidden;
 }
 
-header {
-    padding: 15px;
-    background: #121a35;
-    border-bottom: 2px solid #00e5ff;
-}
-
-h1 {
-    color: #00e5ff;
-    letter-spacing: 3px;
-    font-size: 30px;
-}
-
-header p {
-    margin-top: 5px;
-    color: #aaa;
-}
-
-#informacoes {
-    display: flex;
-    justify-content: center;
-    gap: 35px;
-    padding: 15px;
-    font-size: 20px;
-}
-
-#jogo {
-    width: 90%;
-    max-width: 700px;
-    height: 480px;
-    margin: auto;
+#game {
+    width: 100vw;
+    height: 100vh;
+    background:
+    radial-gradient(circle at center, #20202c, #050509 75%);
     position: relative;
     overflow: hidden;
-    background: linear-gradient(#080b24, #101c3d);
-    border: 3px solid #00e5ff;
-    border-radius: 15px;
-}
-
-.estrela {
-    position: absolute;
-    background: white;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-}
-
-#nave {
-    position: absolute;
-    width: 45px;
-    height: 45px;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 38px;
-}
-
-.inimigo {
-    position: absolute;
-    font-size: 30px;
-}
-
-.tiro {
-    position: absolute;
-    width: 5px;
-    height: 18px;
-    background: #00ffcc;
-    border-radius: 5px;
-    box-shadow: 0 0 10px #00ffcc;
 }
 
 #menu {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.85);
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 20px;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(#090912dd,#000);
     z-index: 10;
+    text-align: center;
 }
 
-#menu h2 {
-    color: #00e5ff;
-    font-size: 35px;
-}
-
-#menu p {
-    color: #ddd;
-    max-width: 80%;
-    line-height: 1.5;
+h1 {
+    color: #ff2525;
+    font-size: 55px;
+    text-shadow: 0 0 20px red;
+    margin-bottom: 20px;
 }
 
 button {
-    background: #00e5ff;
-    color: #07101f;
-    border: none;
-    border-radius: 10px;
-    padding: 14px 30px;
-    font-size: 18px;
-    font-weight: bold;
+    padding: 15px 35px;
+    background: #a00000;
+    color: white;
+    border: 2px solid red;
+    font-size: 20px;
     cursor: pointer;
+    margin-top: 25px;
+    border-radius: 8px;
 }
 
 button:hover {
-    background: white;
-    transform: scale(1.05);
+    background: red;
 }
 
-#controles {
-    margin-top: 15px;
+#player {
+    position: absolute;
+    font-size: 40px;
+    left: 50%;
+    bottom: 100px;
+    transform: translateX(-50%);
+}
+
+.monster {
+    position: absolute;
+    font-size: 45px;
+    top: 0;
+}
+
+#hud {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 20px;
+    z-index: 5;
+}
+
+#message {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    text-align: center;
     color: #aaa;
 }
 
-#controles span {
-    color: #00e5ff;
+#gameover {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #000e;
+    z-index: 8;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
-#mensagem {
-    margin-top: 10px;
-    color: #00e5ff;
-    font-size: 20px;
+#gameover h2 {
+    color: red;
+    font-size: 50px;
+}
+
+#flash {
+    position: absolute;
+    inset: 0;
+    background: red;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 6;
+}
+
+#controls {
+    position: absolute;
+    bottom: 65px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#controls button {
+    margin: 0;
+    padding: 12px 25px;
+    background: #222;
 }
 
 </style>
@@ -148,453 +136,222 @@ button:hover {
 
 <body>
 
-<header>
-    <h1>🚀 LAZARO SPACE BATTLE</h1>
-    <p>Defenda a galáxia!</p>
-</header>
+<div id="game">
 
-<div id="informacoes">
-    <div>⭐ Pontos: <span id="pontos">0</span></div>
-    <div>❤️ Vidas: <span id="vidas">3</span></div>
-    <div>🌎 Fase: <span id="fase">1</span></div>
+<div id="menu">
+<h1>A CIDADE SOMBRIA</h1>
+<p>Você está sozinho em uma cidade abandonada...</p>
+<p>Encontre os cristais e fuja dos monstros.</p>
+<button onclick="startGame()">COMEÇAR</button>
 </div>
 
-<div id="jogo">
-
-    <div id="estrelas"></div>
-
-    <div id="nave">🚀</div>
-
-    <div id="menu">
-        <h2>SPACE BATTLE</h2>
-        <p>
-            Você é o último piloto da galáxia.
-            Destrua os inimigos e sobreviva!
-        </p>
-        <button onclick="iniciarJogo()">
-            INICIAR JOGO
-        </button>
-    </div>
-
+<div id="hud">
+❤️ Vidas: <span id="lives">3</span><br>
+💎 Cristais: <span id="score">0</span><br>
+🌑 Fase: <span id="level">1</span>
 </div>
 
-<div id="controles">
-    <p>
-        <span>← →</span> Mover nave |
-        <span>ESPAÇO</span> Atirar
-    </p>
+<div id="player">🧍</div>
+
+<div id="flash"></div>
+
+<div id="gameover">
+<h2>FIM DE JOGO</h2>
+<p id="finalscore"></p>
+<button onclick="startGame()">JOGAR NOVAMENTE</button>
 </div>
 
-<div id="mensagem">
-    Prepare-se para a batalha!
+<div id="message">
+Use ← → para andar e ESPAÇO para desviar.
+</div>
+
+<div id="controls">
+<button onclick="move(-1)">⬅️</button>
+<button onclick="move(1)">➡️</button>
+</div>
+
 </div>
 
 <script>
 
-// ELEMENTOS DO JOGO
+let player = document.getElementById("player");
+let game = document.getElementById("game");
 
-const jogo = document.getElementById("jogo");
-const nave = document.getElementById("nave");
-const menu = document.getElementById("menu");
+let lives = 3;
+let score = 0;
+let level = 1;
+let position = 50;
+let playing = false;
+let monsters = [];
+let crystals = [];
+let timer;
 
-const pontosTexto = document.getElementById("pontos");
-const vidasTexto = document.getElementById("vidas");
-const faseTexto = document.getElementById("fase");
-const mensagem = document.getElementById("mensagem");
+function startGame() {
 
-// VARIÁVEIS
+    lives = 3;
+    score = 0;
+    level = 1;
+    position = 50;
+    playing = true;
 
-let pontos = 0;
-let vidas = 3;
-let fase = 1;
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("gameover").style.display = "none";
 
-let naveX = 0;
-let velocidade = 7;
+    monsters.forEach(m => m.element.remove());
+    crystals.forEach(c => c.element.remove());
 
-let tiros = [];
-let inimigos = [];
+    monsters = [];
+    crystals = [];
 
-let teclas = {};
-let jogando = false;
+    clearInterval(timer);
 
-let loop;
-let tempoInimigo;
+    updateHUD();
+    updatePlayer();
 
-// CRIAR ESTRELAS
+    timer = setInterval(createObjects, 1100);
 
-function criarEstrelas() {
-
-    const estrelas = document.getElementById("estrelas");
-
-    for (let i = 0; i < 60; i++) {
-
-        let estrela = document.createElement("div");
-
-        estrela.className = "estrela";
-
-        estrela.style.left =
-            Math.random() * 100 + "%";
-
-        estrela.style.top =
-            Math.random() * 100 + "%";
-
-        estrelas.appendChild(estrela);
-    }
 }
 
-criarEstrelas();
-
-// INICIAR JOGO
-
-function iniciarJogo() {
-
-    pontos = 0;
-    vidas = 3;
-    fase = 1;
-
-    tiros = [];
-    inimigos = [];
-
-    naveX = jogo.clientWidth / 2 - 22;
-
-    nave.style.left = naveX + "px";
-
-    atualizarPainel();
-
-    document.querySelectorAll(".tiro").forEach(
-        elemento => elemento.remove()
-    );
-
-    document.querySelectorAll(".inimigo").forEach(
-        elemento => elemento.remove()
-    );
-
-    menu.style.display = "none";
-
-    jogando = true;
-
-    mensagem.innerText = "Boa sorte, piloto!";
-
-    clearInterval(tempoInimigo);
-
-    tempoInimigo = setInterval(
-        criarInimigo,
-        1200
-    );
-
-    cancelarLoop();
-
-    loop = setInterval(atualizarJogo, 20);
+function updatePlayer() {
+    player.style.left = position + "%";
 }
 
-// CANCELAR LOOP
+function move(direction) {
 
-function cancelarLoop() {
+    if (!playing) return;
 
-    if (loop) {
-        clearInterval(loop);
-    }
+    position += direction * 7;
+
+    if (position < 5) position = 5;
+    if (position > 95) position = 95;
+
+    updatePlayer();
 }
 
-// MOVIMENTAR NAVE
+document.addEventListener("keydown", function(e) {
 
-document.addEventListener("keydown", function(evento) {
-
-    teclas[evento.key] = true;
-
-    if (evento.code === "Space") {
-        evento.preventDefault();
-        atirar();
-    }
+    if (e.key === "ArrowLeft" || e.key === "a") move(-1);
+    if (e.key === "ArrowRight" || e.key === "d") move(1);
 
 });
 
-document.addEventListener("keyup", function(evento) {
+function createObjects() {
 
-    teclas[evento.key] = false;
+    if (!playing) return;
 
-});
+    let isMonster = Math.random() < 0.65;
 
-// ATIRAR
+    let element = document.createElement("div");
 
-function atirar() {
+    element.className = isMonster ? "monster" : "crystal";
 
-    if (!jogando) return;
+    element.innerHTML = isMonster ? "👹" : "💎";
 
-    let tiro = document.createElement("div");
+    let x = Math.random() * 90 + 5;
 
-    tiro.className = "tiro";
+    element.style.left = x + "%";
+    element.style.top = "-50px";
 
-    tiro.style.left =
-        naveX + 20 + "px";
+    game.appendChild(element);
 
-    tiro.style.top =
-        (jogo.clientHeight - 65) + "px";
-
-    jogo.appendChild(tiro);
-
-    tiros.push({
-        elemento: tiro,
-        x: naveX + 20,
-        y: jogo.clientHeight - 65
-    });
-
-}
-
-// CRIAR INIMIGOS
-
-function criarInimigo() {
-
-    if (!jogando) return;
-
-    let inimigo = document.createElement("div");
-
-    inimigo.className = "inimigo";
-
-    inimigo.innerText = "👾";
-
-    let x = Math.random() *
-        (jogo.clientWidth - 35);
-
-    inimigo.style.left = x + "px";
-
-    inimigo.style.top = "-40px";
-
-    jogo.appendChild(inimigo);
-
-    inimigos.push({
-        elemento: inimigo,
+    let object = {
+        element: element,
         x: x,
-        y: -40
-    });
+        y: -50,
+        monster: isMonster
+    };
+
+    if (isMonster) {
+        monsters.push(object);
+    } else {
+        crystals.push(object);
+    }
 
 }
 
-// ATUALIZAR JOGO
+function updateHUD() {
 
-function atualizarJogo() {
+    document.getElementById("lives").innerText = lives;
+    document.getElementById("score").innerText = score;
+    document.getElementById("level").innerText = level;
 
-    if (!jogando) return;
+}
 
-    // MOVIMENTO DA NAVE
+setInterval(function() {
 
-    if (teclas["ArrowLeft"] || teclas["a"]) {
-        naveX -= velocidade;
-    }
+    if (!playing) return;
 
-    if (teclas["ArrowRight"] || teclas["d"]) {
-        naveX += velocidade;
-    }
+    [...monsters, ...crystals].forEach(object => {
 
-    // LIMITES DA TELA
+        object.y += 3 + level * 0.5;
 
-    naveX = Math.max(
-        0,
-        Math.min(jogo.clientWidth - 45, naveX)
-    );
+        object.element.style.top = object.y + "px";
 
-    nave.style.left = naveX + "px";
+        let collision =
+            object.y > window.innerHeight - 180 &&
+            object.y < window.innerHeight - 90 &&
+            Math.abs(object.x - position) < 8;
 
-    // MOVIMENTAR TIROS
+        if (collision) {
 
-    for (let i = tiros.length - 1; i >= 0; i--) {
+            if (object.monster) {
 
-        let tiro = tiros[i];
+                lives--;
 
-        tiro.y -= 10;
+                document.getElementById("flash").style.opacity = 0.3;
 
-        tiro.elemento.style.top =
-            tiro.y + "px";
+                setTimeout(() => {
+                    document.getElementById("flash").style.opacity = 0;
+                }, 150);
 
-        if (tiro.y < 0) {
+                if (lives <= 0) {
+                    endGame();
+                }
 
-            tiro.elemento.remove();
+            } else {
 
-            tiros.splice(i, 1);
+                score += 10;
 
-        }
+                if (score % 100 === 0) {
+                    level++;
+                }
 
-    }
-
-    // MOVIMENTAR INIMIGOS
-
-    for (let i = inimigos.length - 1; i >= 0; i--) {
-
-        let inimigo = inimigos[i];
-
-        inimigo.y += 2 + fase;
-
-        inimigo.elemento.style.top =
-            inimigo.y + "px";
-
-        // INIMIGO CHEGOU AO FINAL
-
-        if (inimigo.y > jogo.clientHeight - 45) {
-
-            inimigo.elemento.remove();
-
-            inimigos.splice(i, 1);
-
-            perderVida();
-
-            continue;
-        }
-
-        // COLISÃO ENTRE TIRO E INIMIGO
-
-        for (let j = tiros.length - 1; j >= 0; j--) {
-
-            let tiro = tiros[j];
-
-            let distanciaX =
-                Math.abs(tiro.x - inimigo.x);
-
-            let distanciaY =
-                Math.abs(tiro.y - inimigo.y);
-
-            if (distanciaX < 35 && distanciaY < 35) {
-
-                tiro.elemento.remove();
-                inimigo.elemento.remove();
-
-                tiros.splice(j, 1);
-                inimigos.splice(i, 1);
-
-                ganharPontos();
-
-                break;
             }
 
+            object.element.remove();
+
+            monsters = monsters.filter(m => m !== object);
+            crystals = crystals.filter(c => c !== object);
+
+            updateHUD();
+
         }
 
-    }
+        if (object.y > window.innerHeight) {
+
+            object.element.remove();
+
+            monsters = monsters.filter(m => m !== object);
+            crystals = crystals.filter(c => c !== object);
+
+        }
+
+    });
+
+}, 30);
+
+function endGame() {
+
+    playing = false;
+
+    clearInterval(timer);
+
+    document.getElementById("gameover").style.display = "flex";
+
+    document.getElementById("finalscore").innerText =
+        "Você conseguiu " + score + " pontos!";
 
 }
-
-// GANHAR PONTOS
-
-function ganharPontos() {
-
-    pontos += 10;
-
-    atualizarPainel();
-
-    if (pontos >= fase * 100) {
-
-        fase++;
-
-        atualizarPainel();
-
-        mensagem.innerText =
-            "🚀 VOCÊ AVANÇOU DE FASE!";
-
-    }
-
-}
-
-// PERDER VIDA
-
-function perderVida() {
-
-    vidas--;
-
-    atualizarPainel();
-
-    if (vidas <= 0) {
-
-        fimDeJogo();
-
-    }
-
-}
-
-// ATUALIZAR PAINEL
-
-function atualizarPainel() {
-
-    pontosTexto.innerText = pontos;
-
-    vidasTexto.innerText = vidas;
-
-    faseTexto.innerText = fase;
-
-}
-
-// FIM DE JOGO
-
-function fimDeJogo() {
-
-    jogando = false;
-
-    clearInterval(loop);
-
-    clearInterval(tempoInimigo);
-
-    mensagem.innerText =
-        "Fim de jogo!";
-
-    menu.style.display = "flex";
-
-    menu.innerHTML = `
-        <h2>GAME OVER</h2>
-
-        <p>
-            Sua pontuação foi:
-            <strong>${pontos}</strong>
-        </p>
-
-        <p>
-            Você chegou à fase ${fase}.
-        </p>
-
-        <button onclick="iniciarJogo()">
-            JOGAR NOVAMENTE
-        </button>
-    `;
-
-}
-
-// MOVIMENTO COM MOUSE
-
-jogo.addEventListener("mousemove", function(evento) {
-
-    if (!jogando) return;
-
-    let retangulo = jogo.getBoundingClientRect();
-
-    naveX =
-        evento.clientX -
-        retangulo.left - 22;
-
-});
-
-// MOVIMENTO COM TOQUE
-
-jogo.addEventListener("touchmove", function(evento) {
-
-    if (!jogando) return;
-
-    evento.preventDefault();
-
-    let retangulo = jogo.getBoundingClientRect();
-
-    naveX =
-        evento.touches[0].clientX -
-        retangulo.left - 22;
-
-}, { passive: false });
-
-// CONTROLES DE TECLADO
-
-document.addEventListener("keydown", function(evento) {
-
-    if (evento.key === " ") {
-        evento.preventDefault();
-    }
-
-});
-
-// FIM DO CÓDIGO
 
 </script>
 
